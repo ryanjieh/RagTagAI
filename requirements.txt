@@ -1,0 +1,10 @@
+not properly typed up but i need
+numpy
+pandas
+scikitlearn
+torch
+seaborn
+matplotlib
+transformers
+opencv
+pillow
