@@ -1,5 +1,6 @@
 import praw
 import os
+import sys
 from dotenv import load_dotenv
 import csv
 from datetime import datetime
@@ -37,7 +38,7 @@ def scrape_subreddit(subreddit_name, limit=10):
     subreddit = reddit.subreddit(subreddit_name)
     posts = []
 
-    for post in subreddit.hot(limit=limit):
+    for i, post in enumerate(subreddit.hot(limit=limit)):
         posts.append({
             'title': post.title,
             'text': post.selftext,
@@ -61,52 +62,61 @@ def scrape_subreddit(subreddit_name, limit=10):
 
         # Get comments
         post.comments.replace_more(limit=0)
-        for comment in post.comments.list():
+        comments = post.comments.list()
+        comments.sort(key=lambda x: x.score, reverse=True)
+        for comment in comments[:min(5, len(comments))]:  # Limit to top 5 comments
             posts[-1]['comments'].append({
                 'author': str(comment.author),
                 'body': comment.body,
                 'score': comment.score,
                 'created_utc': human_readable_time(comment.created_utc)
             })
-            posts[-1]['comments'].sort(key = lambda x: x['score'], reverse = True)
-    
+            posts[-1]['comments'].sort(key=lambda x: x['score'], reverse=True)
+        print(f"Processed post {i + 1}/{limit} from subreddit: {subreddit_name}")
+        
     # Sort posts by score
-    posts.sort(key = lambda x: x['score'], reverse = True)  
+    posts.sort(key=lambda x: x['score'], reverse=True)
     return posts
 
 def main():
     """
     Main function to demonstrate the scraper.
     """
-    subreddit_names = ['streetwear']
-    limit = 500  # Number of posts to scrape
+    if len(sys.argv) < 2 or len(sys.argv) > 3:
+        print("Usage: py reddit_scraper.py subreddit_name limit [default=10]")
+        sys.exit(1)
     
-    for subreddit_name in subreddit_names:
-        
-        print(f"Scraping subreddit: {subreddit_name}")
-        
-        posts = scrape_subreddit(subreddit_name, limit)
+    subreddit_name = sys.argv[1]
+    limit = int(sys.argv[2]) if len(sys.argv) == 3 else 10  # Number of posts to scrape, default is 10
 
-        if not posts:
-            print(f"No posts found in subreddit: {subreddit_name}")
-            continue
+    print(f"Scraping subreddit: {subreddit_name}")
         
-        # Save posts to CSV
-        csv_file = f"{subreddit_name}.csv"
-        with open(csv_file, mode='w', newline='', encoding='utf-8') as file:
-            writer = csv.writer(file)
-            writer.writerow(['Title', 'Description', 'Score', 'URL', 'Author', 'Created UTC', 'Images', 'Comments'])
-            for post in posts:
-                writer.writerow([
-                    post['title'],
-                    post['text'],
-                    post['score'],
-                    post['url'],
-                    post['author'],
-                    post['created_utc'],
-                    ', '.join(post['images']) if post['images'] else 'No images',
-                    post['comments'][0:min(5, len(post['comments']))] if post['comments'] else 'No comments'
-                ])
+    posts = scrape_subreddit(subreddit_name, limit)
+
+    if not posts:
+        print(f"No posts found in subreddit: {subreddit_name}")
+        return
+        
+    # Save posts to CSV
+    print("=" * 50)
+    print(f"Saving posts to CSV file...")
+    ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    csv_file = os.path.join(ROOT_DIR, "data", f"{subreddit_name}2.csv")
+    with open(csv_file, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file, delimiter='\t')
+        writer.writerow(['Title', 'Description', 'Score', 'URL', 'Author', 'Created UTC', 'Images', 'Comments'])
+        for i, post in enumerate(posts):
+            writer.writerow([
+                post['title'],
+                post['text'],
+                post['score'],
+                post['url'],
+                post['author'],
+                post['created_utc'],
+                ', '.join(post['images']) if post['images'] else 'No images',
+                   post['comments'] if post['comments'] else 'No comments'
+               ])
+            print(f"Saved post {i + 1}/{len(posts)}")
         print(f"Saved posts to {csv_file}")
         print(f"Scraped {len(posts)} posts from {subreddit_name}.")
         
