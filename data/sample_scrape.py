@@ -1,8 +1,18 @@
 import praw
 import os
 from dotenv import load_dotenv
+import csv
+from datetime import datetime
 
 load_dotenv()
+
+def human_readable_time(timestamp):
+    """
+    Convert a UTC timestamp to a human-readable format.
+    :param timestamp: UTC timestamp.
+    :return: Human-readable time string.
+    """
+    return datetime.utcfromtimestamp(timestamp).strftime('%Y-%m-%d %H:%M:%S')
 
 def create_reddit_client():
     """
@@ -33,7 +43,7 @@ def scrape_subreddit(subreddit_name, limit=10):
             'text': post.selftext,
             'score': post.score,
             'url': post.url,
-            'created_utc': post.created_utc,
+            'created_utc': human_readable_time(post.created_utc),
             'author': str(post.author),
             'images': [],
             'comments': []
@@ -56,7 +66,7 @@ def scrape_subreddit(subreddit_name, limit=10):
                 'author': str(comment.author),
                 'body': comment.body,
                 'score': comment.score,
-                'created_utc': comment.created_utc
+                'created_utc': human_readable_time(comment.created_utc)
             })
             posts[-1]['comments'].sort(key = lambda x: x['score'], reverse = True)
     
@@ -69,7 +79,7 @@ def main():
     Main function to demonstrate the scraper.
     """
     subreddit_names = ['streetwear']
-    limit = 10  # Number of posts to scrape
+    limit = 500  # Number of posts to scrape
     
     for subreddit_name in subreddit_names:
         
@@ -77,19 +87,28 @@ def main():
         
         posts = scrape_subreddit(subreddit_name, limit)
 
-        for idx, post in enumerate(posts):
-            print(f"Post {idx + 1}:")
-            print(f"Title: {post['title']}")
-            print(f"Description: {post['text'] if post['text'] else 'No description'}")
-            print(f"Score: {post['score']}")
-            print(f"URL: {post['url']}")
-            print(f"Author: {post['author']}")
-            print(f"Created UTC: {post['created_utc']}")
-            print(f"Images: {', '.join(post['images']) if post['images'] else 'No images'}")
-            print(f"Comments: {len(post['comments'])} comments")
-            for comment in post['comments']:
-                print(f"  - Comment by {comment['author']}: {comment['body']} (Score: {comment['score']})")
-            print("-" * 80)
-
+        if not posts:
+            print(f"No posts found in subreddit: {subreddit_name}")
+            continue
+        
+        # Save posts to CSV
+        csv_file = f"{subreddit_name}.csv"
+        with open(csv_file, mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+            writer.writerow(['Title', 'Description', 'Score', 'URL', 'Author', 'Created UTC', 'Images', 'Comments'])
+            for post in posts:
+                writer.writerow([
+                    post['title'],
+                    post['text'],
+                    post['score'],
+                    post['url'],
+                    post['author'],
+                    post['created_utc'],
+                    ', '.join(post['images']) if post['images'] else 'No images',
+                    post['comments'][0:min(5, len(post['comments']))] if post['comments'] else 'No comments'
+                ])
+        print(f"Saved posts to {csv_file}")
+        print(f"Scraped {len(posts)} posts from {subreddit_name}.")
+        
 if __name__ == "__main__":
     main()
