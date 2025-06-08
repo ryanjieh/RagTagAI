@@ -1,0 +1,15 @@
+How might I summarise a social media threads, complete with interaction metrics, into a list of fashion suggestions for OP? 
+
+https://papers.academic-conferences.org/index.php/ecsm/article/view/2046 - 
+This paper suggests that T5 is a good pre-trained model for summarising social media summaries. In particular they state that pre-processing is necessary to remove non-substantive comments and links etc. 
+Their data only includes the number of comments below it, the comment content and a unique id
+
+https://paperswithcode.com/dataset/webis-tldr-17-corpus Maybe training a question answering model on this dataset?
+https://huggingface.co/datasets/trl-lib/tldr
+
+_________
+
+To do: Make a script to add to Joseph’s, to 
+take his image link and convert to a numpy array
+Get a list of suggestions as well as sentiment analysis of the reddit post – figure out how to use t5 to answer questions on json. It is attempting to answer but giving gibberish
+Collect the as a dataset to train a clip model to match the image to suggestions 
