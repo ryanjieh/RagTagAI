@@ -1,1 +1,2 @@
 MONGODB_URI='insert uri here'
+GOOGLE_API_KEY='insert api key here'
