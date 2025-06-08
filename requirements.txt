@@ -1,14 +1,3 @@
-# not properly typed up but i need
-# numpy
-# pandas
-# scikitlearn
-# torch
-# seaborn
-# matplotlib
-# transformers
-# opencv
-# pillow
-
 blinker==1.9.0
 certifi==2025.4.26
 charset-normalizer==3.4.2
@@ -20,11 +9,21 @@ idna==3.10
 itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.2
+matplotlib==3.10.3
+numpy==2.2.6
+opencv-python==4.11.0.86
+pandas==2.2.3
+pillow==11.2.1
 praw==7.8.1
 prawcore==2.4.0
 pymongo==4.13.0
 python-dotenv==1.1.0
 requests==2.32.3
+scikit-learn==1.6.1
+seaborn==0.13.2
+torch==2.7.0
+tqdm==4.67.1
+transformers==4.52.4
 update-checker==0.18.0
 urllib3==2.4.0
 websocket-client==1.8.0
