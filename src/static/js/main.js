@@ -75,16 +75,18 @@ function rateImage() {
   const formData = new FormData();
   canvas.toBlob((blob) => {
     formData.append("image", blob, "image.png");
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+    fetch("/rate", {
+      method: "POST",
+      body: formData,
+    })
+      .then((resp) => resp.json())
+      .then((res) => {
+        resultBox.innerHTML = res.result;
+      });
   }, "image/png");
-
-  fetch("/rate", {
-    method: "POST",
-    body: formData,
-  })
-    .then((resp) => resp.json())
-    .then((res) => {
-      resultBox.innerHTML = res.result;
-    });
 }
 
 startCamera();
