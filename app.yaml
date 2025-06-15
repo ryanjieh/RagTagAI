@@ -1,0 +1,21 @@
+runtime: python310 # Use Python 3.9 runtime
+
+entrypoint: gunicorn -b :$PORT main:app # Entry point for the app
+
+env_variables: # Optional: Define any environment variables needed
+  MONGODB_URI: "mongodb+srv://admin:JVuI5AzVBPv8Bg2j@ai-fit-check-db.60g0qui.mongodb.net/?retryWrites=true&w=majority&appName=ai-fit-check-db"
+  GOOGLE_API_KEY: "AIzaSyDlGqjn3-EqTr75uK75OHKySNj3b8r5Vio"
+
+instance_class: F2 # Optional: Specify the instance class (F1, F2, etc.)
+
+handlers:
+  - url: /static
+    static_dir: static # Serve static files from the static directory
+
+  - url: /.* # Catch-all handler for dynamic routes
+    script: auto
+
+automatic_scaling: # Optional: Define scaling behavior
+  target_cpu_utilization: 0.65 # Set the target CPU utilization
+  min_instances: 1 # Minimum number of instances
+  max_instances: 2 # Maximum number of instances
