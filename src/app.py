@@ -31,6 +31,7 @@ def rate():
     # generate rating
     
     # vector search for context
+    # context = mongo.find_relevant_posts(embed)
     
     # feed context to LLM
     # result = query(context)
