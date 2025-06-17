@@ -1,27 +1,12 @@
-from pymongo import MongoClient
-from dotenv import load_dotenv
-load_dotenv()
-import os
-
-uri = os.environ.get("MONGODB_URI")
-# Create a new client and connect to the server
-client = MongoClient(uri)
-# Send a ping to confirm a successful connection
-client.admin.command('ping')
-print("Pinged your deployment. You successfully connected to MongoDB!")
-db = client["fit-check"]
-collection = db["embeddings"]
-
-def find_relevant_posts(embed, k=5):
+def find_relevant_posts(collection, embed, limit=5):
     pipeline = [
         {
-            "$search": {
+            "$vectorSearch": {
                 "index": "vector_index",
-                "knnBeta": {
-                    "vector": embed,
-                    "path": "embeds.values",
-                    "k": k
-                }
+                "queryVector": embed.squeeze().tolist(),
+                "path": "embeds.values",
+                "numCandidates": 100,
+                "limit": limit
             }
         },
         {
@@ -29,6 +14,8 @@ def find_relevant_posts(embed, k=5):
                 "_id": 0,
                 "title": 1,
                 "image": 1,
+                "caption": 1,
+                "sentiment": 1,
                 "image_embeds": 1,
                 "text_embeds": 1,
                 "embed": 1
@@ -36,6 +23,3 @@ def find_relevant_posts(embed, k=5):
         }
     ]
     return list(collection.aggregate(pipeline))
-
-# Close the client connection
-client.close()

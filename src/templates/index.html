@@ -1,42 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Camera Capture with Text Box</title>
-    <link
-      rel="stylesheet"
-      href='{{url_for("static",
-    filename="css/main.css")}}'
-    />
-  </head>
-  <body>
-    <div id="video-container">
-      <video id="camera" autoplay></video>
-      <div id="picture-options">
-        <button id="capture-button" onclick="captureImage()">
-          📸 Capture Photo
-        </button>
-        <button id="upload-button">⬆️ Upload Photo</button>
-        <input
-          type="file"
-          id="image-input"
-          accept="image/png, image/gif, image/jpeg"
-          style="display: none"
-          onchange="uploadImage()"
+    <head>
+        <meta charset="UTF-8" />
+        <title>RagTag</title>
+        <link
+        rel="stylesheet"
+        href='{{url_for("static",
+        filename="css/main.css")}}'
         />
-      </div>
-      <canvas id="snapshot"></canvas>
-      <button onclick="rateImage()">✨ Rate!</button>
-    </div>
+    </head>
+    <body>
+        <div class="main-container">
+            <h1 class="title">RagTag</h1>
+                <div id="video-container">
+                    <video id="camera" autoplay></video>
+                    <div id="picture-options">
+                        <button id="capture-button" onclick="captureImage()">
+                            📸 Capture Photo
+                        </button>
+                        <button id="upload-button">⬆️ Upload Photo</button>
+                        <input
+                            type="file"
+                            id="image-input"
+                            accept="image/png, image/gif, image/jpeg"
+                            style="display: none"
+                            onchange="uploadImage()"
+                        />
+                    </div>
+                    <canvas id="snapshot"></canvas>
+                    <button onclick="rateImage()">✨ Rate!</button>
+                </div>
 
-    <div id="text-container">
-      <textarea
-        id="result-box"
-        placeholder="Type your notes here..."
-        disabled
-      ></textarea>
-    </div>
-
-    <script src='{{url_for("static", filename="js/main.js")}}'></script>
-  </body>
+            <div id="text-container">
+                <textarea
+                    id="result-box"
+                    placeholder="Suggestion"
+                    disabled
+                ></textarea>
+                <button id="reset-button">Reset</button>
+            </div>
+        </div>
+        <script src='{{url_for("static", filename="js/main.js")}}'></script>
+    </body>
 </html>

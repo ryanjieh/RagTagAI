@@ -1,5 +1,6 @@
 from transformers import CLIPProcessor, CLIPModel, AutoProcessor, AutoModelForImageTextToText
 import torch
+from safetensors import safe_open
 
 clip_model_id = "patrickjohncyh/fashion-clip"
 clip_model = CLIPModel.from_pretrained(clip_model_id)
@@ -12,9 +13,14 @@ clip_device = torch.device(
     )
 clip_model = clip_model.to(clip_device)
 
-blip_model_id = "sagniksengupta/blip-finetuned-facad-v2"
-blip_processor = AutoProcessor.from_pretrained("sagniksengupta/blip-finetuned-facad-v2")
-blip_model = AutoModelForImageTextToText.from_pretrained("sagniksengupta/blip-finetuned-facad-v2")
+blip_model_id = "Salesforce/blip-image-captioning-base"
+blip_processor = AutoProcessor.from_pretrained(blip_model_id)
+blip_model = AutoModelForImageTextToText.from_pretrained(blip_model_id)
+
+with safe_open("./blip-finetuned/model.safetensors", framework="pt", device="cpu") as f:
+    for key in f.keys():
+        tensor = f.get_tensor(key)
+        blip_model.state_dict()[key].copy_(tensor)  # Load weights into the model
 
 blip_device = torch.device(
     0 if torch.cuda.is_available()
@@ -23,24 +29,22 @@ blip_device = torch.device(
 blip_model = blip_model.to(blip_device)
 
 def generate_caption(image):
-    prompt = "Outfit description only WITHOUT any advertisement: "
+    prompt = "Full outfit: "
     input = blip_processor(
         text=prompt,
         images=image,
         return_tensors="pt",
-        truncation=True,
-        max_length=77
     ).to(blip_device)
     
     with torch.no_grad():
         output = blip_model.generate(
             **input,
-            max_new_tokens = 30,
-            num_beams = 5,
+            max_new_tokens = 50,
+            num_beams = 3,
             early_stopping = True
         )
     caption = blip_processor.batch_decode(output, skip_special_tokens=True)[0]
-    return caption
+    return caption[14:]
 
 def embed_user_input(image, caption):
     input = clip_processor(

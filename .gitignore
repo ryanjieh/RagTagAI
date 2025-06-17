@@ -1,4 +1,7 @@
 .venv
 .env
-
+training/
+data/
+docs/
+.sample_env
 __pycache__/
