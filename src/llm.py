@@ -33,7 +33,7 @@ def query(user_outfit, relevant_posts):
     for i, post in enumerate(relevant_posts):
         num = f"{i + 1}."
         caption = post["caption"]
-        sentiment = f"{post["sentiment"]}"
+        sentiment = f"{post['sentiment']}"
         prompt.append(num)
         prompt.append(caption)
         prompt.append(sentiment)

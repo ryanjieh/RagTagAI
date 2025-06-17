@@ -5,3 +5,4 @@ data/
 docs/
 .sample_env
 __pycache__/
+runs/
